@@ -10,24 +10,22 @@ const getCounty = function (county) {
   let data = '';
   let countyCoordinates;
   fetch(
-    'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-united-states-of-america-county&q=&sort=year&facet=coty_name&refine.coty_name=' + county
+    'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-united-states-of-america-county&q=&sort=year&facet=coty_name&refine.coty_name=' +
+      county
   )
     .then(function (response) {
       return response.json();
     })
     .then(function (myJson) {
       data = myJson;
-      if(data.records.length > 0){
+      if (data.records.length > 0) {
         countyCoordinates = data['records'][0].fields.geo_shape.coordinates[0];
         countyCoordinates = countyCoordinates.map((x) => ({
           lng: x[0],
           lat: x[1],
         }));
         drawMap(countyCoordinates);
-      }
-      else
-        drawMap(data.records);
-      
+      } else drawMap(data.records);
     });
 };
 
@@ -37,7 +35,8 @@ const getState = function (state) {
   console.log(state);
 
   fetch(
-    'https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-state-boundaries&q=&facet=name&refine.name=' + state
+    'https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-state-boundaries&q=&facet=name&refine.name=' +
+      state
   )
     .then(function (response) {
       return response.json();
@@ -46,11 +45,13 @@ const getState = function (state) {
       data = myJson;
       console.log(data);
       stateCoordinates = data['records'][0].fields.st_asgeojson.coordinates[0];
-      stateCoordinates = stateCoordinates.map((x) => ({lng: x[0], lat: x[1]}));
+      stateCoordinates = stateCoordinates.map((x) => ({
+        lng: x[0],
+        lat: x[1],
+      }));
       drawMap(stateCoordinates);
     });
-
-}
+};
 
 const drawMap = function (data = null) {
   const map = new google.maps.Map(
@@ -80,19 +81,24 @@ const drawMap = function (data = null) {
     fillOpacity: 0.35,
   });
   bermudaTriangle.setMap(map);
-  
 };
 
 function initMap(): void {
-  let userSearch = 'Greene';
-  let states = ['Alaska', 'Texas', 'New york', 'Alabama', 'California', 'Delaware'];
-  let counties = ['Bibb', 'Greene', 'St. Clair', 'Cleveland', 'Southeast Fairbanks', 'Adams']
-  let state = states.find(x=> x.toLowerCase() == userSearch.toLowerCase());
+  var geocoder = new google.maps.Geocoder();
+  let userSearch = 'Greene County, OH';
+  let states = [
+    'Alaska',
+    'Texas',
+    'New york',
+    'Alabama',
+    'California',
+    'Delaware',
+  ];
+  let state = states.find((x) => x.toLowerCase() == userSearch.toLowerCase());
 
-  if(state != null){
+  if (state) {
     getState(state);
-  }
-  else{
+  } else {
     getCounty(userSearch);
   }
 }
